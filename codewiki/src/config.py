@@ -12,7 +12,7 @@ DEPENDENCY_GRAPHS_DIR = 'dependency_graphs'
 DOCS_DIR = 'docs'
 FIRST_MODULE_TREE_FILENAME = 'first_module_tree.json'
 MODULE_TREE_FILENAME = 'module_tree.json'
-OVERVIEW_FILENAME = 'overview.md'
+OVERVIEW_FILENAME = 'index.md'
 MAX_DEPTH = 2
 # Default max token settings
 DEFAULT_MAX_TOKENS = 32_768
@@ -108,10 +108,10 @@ class Config:
         
         if self.doc_type:
             doc_type_instructions = {
-                'api': "Focus on API documentation: endpoints, parameters, return types, and usage examples.",
-                'architecture': "Focus on architecture documentation: system design, component relationships, and data flow.",
-                'user-guide': "Focus on user guide documentation: how to use features, step-by-step tutorials.",
-                'developer': "Focus on developer documentation: code structure, contribution guidelines, and implementation details.",
+                'api': "Сфокусируйся на документации API: эндпоинты, параметры, типы возвращаемых значений и примеры использования.",
+                'architecture': "Сфокусируйся на архитектурной документации: дизайн системы, взаимосвязи компонентов и потоки данных.",
+                'user-guide': "Сфокусируйся на пользовательской документации: как пользоваться функциональностью, пошаговые инструкции и сценарии использования.",
+                'developer': "Сфокусируйся на документации для разработчиков: структура кода, правила внесения изменений и детали реализации.",
             }
             if self.doc_type.lower() in doc_type_instructions:
                 additions.append(doc_type_instructions[self.doc_type.lower()])

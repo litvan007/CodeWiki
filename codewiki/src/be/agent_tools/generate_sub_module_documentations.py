@@ -68,7 +68,7 @@ async def generate_sub_module_documentation(
         deps.current_depth += 1
         # log the current module tree
         # print(f"Current module tree: {json.dumps(deps.module_tree, indent=4)}")
-
+        import json
         result = await sub_agent.run(
             format_user_prompt(
                 module_name=deps.current_module_name,
@@ -78,6 +78,15 @@ async def generate_sub_module_documentation(
             ),
             deps=ctx.deps
         )
+        raw = result.all_messages_json().decode("utf-8")
+        data = json.loads(raw)
+
+        with open(
+            f"/Users/litvan/CodeWiki/temp/agent_work/result_{deps.current_module_name}.json",
+            "w",
+            encoding="utf-8",
+        ) as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
 
         # remove the sub-module name from the path to current module and the module tree
         deps.path_to_current_module.pop()
@@ -86,7 +95,11 @@ async def generate_sub_module_documentation(
     # restore the previous module name
     deps.current_module_name = previous_module_name
 
-    return f"Generate successfully. Documentations: {', '.join([key + '.md' for key in sub_module_specs.keys()])} are saved in the working directory."
+    return (
+        "Generate successfully. Documentations: "
+        + ", ".join([f"{key}/{key}.md, {key}/request.md, {key}/response.md" for key in sub_module_specs.keys()])
+        + " are saved in the working directory."
+    )
 
 
 generate_sub_module_documentation_tool = Tool(function=generate_sub_module_documentation, name="generate_sub_module_documentation", description="Generate detailed description of a given sub-module specs to the sub-agents", takes_ctx=True)

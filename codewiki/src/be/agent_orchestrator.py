@@ -47,6 +47,7 @@ from codewiki.src.be.prompt_template import (
     format_leaf_system_prompt,
 )
 from codewiki.src.be.utils import is_complex_module
+from codewiki.src.be.utils import get_module_doc_path
 from codewiki.src.config import (
     Config,
     MODULE_TREE_FILENAME,
@@ -116,6 +117,18 @@ class AgentOrchestrator:
             custom_instructions=self.custom_instructions
         )
 
+        def _set_doc_paths(tree: Dict[str, Any]) -> None:
+            if not module_path:
+                return
+            node = tree
+            for part in module_path:
+                node = node[part]
+                if part != module_path[-1]:
+                    node = node.get("children", {})
+            node["doc_path"] = f"{module_name}/{module_name}.md"
+            node["request_path"] = f"{module_name}/request.md"
+            node["response_path"] = f"{module_name}/response.md"
+
         # check if overview docs already exists
         overview_docs_path = os.path.join(working_dir, OVERVIEW_FILENAME)
         if os.path.exists(overview_docs_path):
@@ -123,13 +136,16 @@ class AgentOrchestrator:
             return module_tree
 
         # check if module docs already exists
-        docs_path = os.path.join(working_dir, f"{module_name}.md")
+        docs_path = get_module_doc_path(working_dir, module_name)
         if os.path.exists(docs_path):
             logger.info(f"✓ Module docs already exists at {docs_path}")
+            _set_doc_paths(module_tree)
+            file_manager.save_json(module_tree, module_tree_path)
             return module_tree
         
         # Run agent
         try:
+            import json
             result = await agent.run(
                 format_user_prompt(
                     module_name=module_name,
@@ -139,7 +155,20 @@ class AgentOrchestrator:
                 ),
                 deps=deps
             )
+            raw = result.all_messages_json().decode("utf-8")
+            data = json.loads(raw)
+
+            with open(
+                f"/Users/litvan/CodeWiki/temp/agent_work/result_{deps.current_module_name}.json",
+                "w",
+                encoding="utf-8",
+            ) as f:
+                json.dump(data, f, ensure_ascii=False, indent=2)
+
             
+            # Update module tree with doc paths for navigation
+            _set_doc_paths(deps.module_tree)
+
             # Save updated module tree
             file_manager.save_json(deps.module_tree, module_tree_path)
             logger.debug(f"Successfully processed module: {module_name}")

@@ -570,7 +570,7 @@ DOCS_VIEW_TEMPLATE = """
 <body>
     <div class="container">
         <nav class="sidebar">
-            <a href="/static-docs/{{ job_id }}/overview.md" class="logo">📚 {{ repo_name }}</a>
+            <a href="/static-docs/{{ job_id }}/index.md" class="logo">📚 {{ repo_name }}</a>
             
             {% if metadata and metadata.generation_info %}
             <div style="margin: 20px 0; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
@@ -590,7 +590,7 @@ DOCS_VIEW_TEMPLATE = """
             
             {% if navigation %}
             <div class="nav-section">
-                <a href="/static-docs/{{ job_id }}/overview.md" class="nav-item {% if current_page == 'overview.md' %}active{% endif %}">
+                <a href="/static-docs/{{ job_id }}/index.md" class="nav-item {% if current_page == 'index.md' %}active{% endif %}">
                     Overview
                 </a>
             </div>
@@ -600,7 +600,8 @@ DOCS_VIEW_TEMPLATE = """
                 {% set indent_style = 'margin-left: ' + (depth * 15)|string + 'px;' if depth > 0 else '' %}
                 <div class="{{ indent_class }}" {% if indent_style %}style="{{ indent_style }}"{% endif %}>
                     {% if data.components %}
-                        <a href="/static-docs/{{ job_id }}/{{ key }}.md" class="nav-item {% if current_page == key + '.md' %}active{% endif %}">
+                        {% set doc_path = data.get('doc_path') if data.get('doc_path') else key + '.md' %}
+                        <a href="/static-docs/{{ job_id }}/{{ doc_path }}" class="nav-item {% if current_page == doc_path %}active{% endif %}">
                             {{ key.replace('_', ' ').title() }}
                         </a>
                     {% else %}

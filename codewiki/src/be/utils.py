@@ -1,3 +1,4 @@
+import os
 import re
 from pathlib import Path
 from typing import List, Tuple
@@ -24,10 +25,34 @@ def is_complex_module(components: dict[str, any], core_component_ids: list[str])
 
 
 # ------------------------------------------------------------
+# ---------------------- Docs Paths --------------------------
+# ------------------------------------------------------------
+
+def get_module_doc_dir(working_dir: str, module_name: str) -> str:
+    """Return the directory path for module documentation."""
+    return os.path.join(working_dir, module_name)
+
+
+def get_module_doc_path(working_dir: str, module_name: str) -> str:
+    """Return the main documentation file path for a module."""
+    return os.path.join(get_module_doc_dir(working_dir, module_name), f"{module_name}.md")
+
+
+def get_request_doc_path(working_dir: str, module_name: str) -> str:
+    """Return the request documentation file path for a module."""
+    return os.path.join(get_module_doc_dir(working_dir, module_name), "request.md")
+
+
+def get_response_doc_path(working_dir: str, module_name: str) -> str:
+    """Return the response documentation file path for a module."""
+    return os.path.join(get_module_doc_dir(working_dir, module_name), "response.md")
+
+
+# ------------------------------------------------------------
 # ---------------------- Token Counting ---------------------
 # ------------------------------------------------------------
 
-enc = tiktoken.encoding_for_model("gpt-4")
+enc = tiktoken.encoding_for_model("gpt-4") #FIXME: неправильная токенизация
 
 def count_tokens(text: str) -> int:
     """

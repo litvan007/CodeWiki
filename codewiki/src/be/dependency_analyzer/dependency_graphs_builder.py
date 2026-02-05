@@ -78,8 +78,9 @@ class DependencyGraphBuilder:
             available_types.add(comp.component_type)
         
         # Valid types for leaf nodes - include functions for C-based codebases
-        valid_types = {"class", "interface", "struct"}
+        valid_types = {"class", "interface", "struct", "function"}
         # If no classes/interfaces/structs are found, include functions
+        print( "available_types:", available_types )
         if not available_types.intersection(valid_types):
             valid_types.add("function")
         

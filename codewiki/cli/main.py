@@ -5,6 +5,8 @@ Main CLI application for CodeWiki using Click framework.
 import sys
 import click
 from pathlib import Path
+import logging
+import os
 
 from codewiki import __version__
 
@@ -40,7 +42,6 @@ cli.add_command(generate_command, name="generate")
 
 
 def main():
-    """Entry point for the CLI."""
     try:
         cli(obj={})
     except KeyboardInterrupt:

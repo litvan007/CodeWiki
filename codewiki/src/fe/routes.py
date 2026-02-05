@@ -176,7 +176,7 @@ class WebRoutes:
         # Redirect to the documentation viewer
         return RedirectResponse(url=f"/static-docs/{job_id}/", status_code=status.HTTP_302_FOUND)
     
-    async def serve_generated_docs(self, job_id: str, filename: str = "overview.md") -> HTMLResponse:
+    async def serve_generated_docs(self, job_id: str, filename: str = "index.md") -> HTMLResponse:
         """Serve generated documentation files."""
         job = self.background_worker.get_job_status(job_id)
         docs_path = None

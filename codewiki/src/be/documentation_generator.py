@@ -24,6 +24,10 @@ from codewiki.src.config import (
 )
 from codewiki.src.utils import file_manager
 from codewiki.src.be.agent_orchestrator import AgentOrchestrator
+from codewiki.src.be.utils import (
+    get_module_doc_dir,
+    get_module_doc_path,
+)
 
 
 class DocumentationGenerator:
@@ -53,17 +57,22 @@ class DocumentationGenerator:
                 "max_depth": self.config.max_depth
             },
             "files_generated": [
-                "overview.md",
+                "index.md",
                 "module_tree.json",
                 "first_module_tree.json"
             ]
         }
         
-        # Add generated markdown files to the metadata
+        # Add generated markdown files to the metadata (including nested folders)
         try:
-            for file_path in os.listdir(working_dir):
-                if file_path.endswith('.md') and file_path not in metadata["files_generated"]:
-                    metadata["files_generated"].append(file_path)
+            for root, _dirs, files in os.walk(working_dir):
+                for file_path in files:
+                    if not file_path.endswith(".md"):
+                        continue
+                    absolute_path = os.path.join(root, file_path)
+                    rel_path = os.path.relpath(absolute_path, working_dir)
+                    if rel_path not in metadata["files_generated"]:
+                        metadata["files_generated"].append(rel_path)
         except Exception as e:
             logger.warning(f"Could not list generated files: {e}")
         
@@ -113,10 +122,11 @@ class DocumentationGenerator:
             module_info = module_info["children"]
 
         for child_name, child_info in module_info.items():
-            if os.path.exists(os.path.join(working_dir, f"{child_name}.md")):
-                child_info["docs"] = file_manager.load_text(os.path.join(working_dir, f"{child_name}.md"))
+            child_doc_path = get_module_doc_path(working_dir, child_name)
+            if os.path.exists(child_doc_path):
+                child_info["docs"] = file_manager.load_text(child_doc_path)
             else:
-                logger.warning(f"Module docs not found at {os.path.join(working_dir, f"{child_name}.md")}")
+                logger.warning(f"Module docs not found at {child_doc_path}")
                 child_info["docs"] = ""
 
         return processed_module_tree
@@ -189,10 +199,11 @@ class DocumentationGenerator:
             # save final_module_tree to module_tree.json
             file_manager.save_json(final_module_tree, os.path.join(working_dir, MODULE_TREE_FILENAME))
 
-            # rename repo_name.md to overview.md
-            repo_overview_path = os.path.join(working_dir, f"{repo_name}.md")
+            # copy repo_name.md (now stored under repo_name/) to index.md
+            repo_overview_path = get_module_doc_path(working_dir, repo_name)
             if os.path.exists(repo_overview_path):
-                os.rename(repo_overview_path, os.path.join(working_dir, OVERVIEW_FILENAME))
+                overview_path = os.path.join(working_dir, OVERVIEW_FILENAME)
+                file_manager.save_text(file_manager.load_text(repo_overview_path), overview_path)
         
         return working_dir
 
@@ -207,6 +218,16 @@ class DocumentationGenerator:
         module_tree_path = os.path.join(working_dir, MODULE_TREE_FILENAME)
         module_tree = file_manager.load_json(module_tree_path)
 
+        def _set_doc_path(tree: Dict[str, Any]) -> None:
+            if not module_path:
+                return
+            node = tree
+            for part in module_path:
+                node = node[part]
+                if part != module_path[-1]:
+                    node = node.get("children", {})
+            node["doc_path"] = f"{module_name}/{module_name}.md"
+
         # check if overview docs already exists
         overview_docs_path = os.path.join(working_dir, OVERVIEW_FILENAME)
         if os.path.exists(overview_docs_path):
@@ -214,9 +235,14 @@ class DocumentationGenerator:
             return module_tree
 
         # check if parent docs already exists
-        parent_docs_path = os.path.join(working_dir, f"{module_name if len(module_path) >= 1 else OVERVIEW_FILENAME.replace('.md', '')}.md")
+        if len(module_path) >= 1:
+            parent_docs_path = get_module_doc_path(working_dir, module_name)
+        else:
+            parent_docs_path = os.path.join(working_dir, OVERVIEW_FILENAME)
         if os.path.exists(parent_docs_path):
             logger.info(f"✓ Parent docs already exists at {parent_docs_path}")
+            _set_doc_path(module_tree)
+            file_manager.save_json(module_tree, module_tree_path)
             return module_tree
 
         # Create repo structure with 1-depth children docs and target indicator
@@ -236,7 +262,12 @@ class DocumentationGenerator:
             # Parse and save parent documentation
             parent_content = parent_docs.split("<OVERVIEW>")[1].split("</OVERVIEW>")[0].strip()
             # parent_content = prompt
+            if len(module_path) >= 1:
+                file_manager.ensure_directory(get_module_doc_dir(working_dir, module_name))
             file_manager.save_text(parent_content, parent_docs_path)
+
+            _set_doc_path(module_tree)
+            file_manager.save_json(module_tree, module_tree_path)
             
             logger.debug(f"Successfully generated parent documentation for: {module_name}")
             return module_tree

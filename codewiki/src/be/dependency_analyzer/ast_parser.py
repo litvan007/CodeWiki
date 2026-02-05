@@ -71,10 +71,11 @@ class DependencyParser:
             if not component_id:
                 continue
                 
+            print("func_dict_name", func_dict.get("name", ""))
             node = Node(
                 id=component_id,
                 name=func_dict.get("name", ""),
-                component_type=func_dict.get("component_type", func_dict.get("node_type", "function")),
+                component_type=func_dict.get("component_type") or self._determine_component_type(func_dict),
                 file_path=func_dict.get("file_path", ""),
                 relative_path=func_dict.get("relative_path", ""),
                 source_code=func_dict.get("source_code", func_dict.get("code_snippet", "")),
@@ -83,7 +84,7 @@ class DependencyParser:
                 has_docstring=func_dict.get("has_docstring", bool(func_dict.get("docstring", ""))),
                 docstring=func_dict.get("docstring", "") or "",
                 parameters=func_dict.get("parameters", []),
-                node_type=func_dict.get("node_type", "function"),
+                node_type=func_dict.get("node_type") or func_dict.get("component_type") or "function",
                 base_classes=func_dict.get("base_classes"),
                 class_name=func_dict.get("class_name"),
                 display_name=func_dict.get("display_name", ""),

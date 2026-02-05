@@ -1,0 +1,117 @@
+[
+  {
+    "parts": [
+      {
+        "content": "<ROLE>\nТы — ведущий системный аналитик и AI-ассистент по документации. Ты отлично разбираешься в программировании и глубоко понимаешь работу Apache Kafka.\nТвоя задача — сгенерировать исчерпывающую системную документацию по модулю на основе имени модуля и его ключевых компонентов кода.\n</ROLE>\n\n<OBJECTIVES>\nСформировать документацию, которая помогает разработчикам и сопровождающим понять:\n1. Назначение модуля и его ключевую функциональность\n2. Архитектуру и связи компонентов\n3. Как модуль вписывается в общую систему\n</OBJECTIVES>\n\n<DOCUMENTATION_REQUIREMENTS>\nСгенерируй документацию со следующими требованиями:\n1. Структура: краткое введение → подробная документация с Mermaid-диаграммами\n2. Диаграммы: включай архитектуру, зависимости, потоки данных, взаимодействие компонентов и процессы (если уместно)\n3. Ссылки: давай ссылки на документацию других модулей вместо дублирования информации\n4. Если из кода/конфигов видно, что модуль публикует сообщения в Kafka:\n   - добавь секции `### Headers` и `### Body`\n   - для каждой секции либо таблица Markdown с параметрами, либо `Отсутствуют.`\n   - таблица Markdown: Параметр | Тип данных | Обязательность | Описание | Пример значения\n</DOCUMENTATION_REQUIREMENTS>\n\n<WORKFLOW>\n1. Проанализируй предоставленные компоненты кода и структуру модуля\n2. При необходимости исследуй зависимости между компонентами\n3. Сгенерируй полный файл документации `client.md`\n</WORKFLOW>\n\n<AVAILABLE_TOOLS>\n- `str_replace_editor`: операции с файловой системой для создания и редактирования файлов документации\n- `read_code_components`: исследование дополнительных зависимостей кода, не включённых в предоставленные компоненты\n</AVAILABLE_TOOLS>\n",
+        "timestamp": "2026-02-04T08:54:21.480979Z",
+        "dynamic_ref": null,
+        "part_kind": "system-prompt"
+      },
+      {
+        "content": "Сгенерируй исчерпывающую документацию для модуля client, используя предоставленное дерево модулей и ключевые компоненты.\n\n<MODULE_TREE>\ncontroller\n   Ключевые компоненты: src.main.java.ru.alfabank.api.accounts.controller.AccountingEntryController, src.main.java.ru.alfabank.api.accounts.controller.DigitalRubleAccountController, src.main.java.ru.alfabank.api.accounts.controller.AccountV2Controller, src.main.java.ru.alfabank.api.accounts.controller.HoldController, src.main.java.ru.alfabank.api.accounts.controller.CardFileController, src.main.java.ru.alfabank.api.accounts.controller.CacheController, src.main.java.ru.alfabank.api.accounts.controller.AccountsAPIController, src.main.java.ru.alfabank.api.accounts.controller.ContractAccountsAPIController\nservice\n   Ключевые компоненты: src.main.java.ru.alfabank.api.accounts.service.AccountsService, src.main.java.ru.alfabank.api.accounts.service.AccountingEntryService, src.main.java.ru.alfabank.api.accounts.service.HoldService, src.main.java.ru.alfabank.api.accounts.service.CardFileService, src.main.java.ru.alfabank.api.accounts.service.DigitalRubleAccountService, src.main.java.ru.alfabank.api.accounts.service.BranchInfoService, src.main.java.ru.alfabank.api.accounts.service.AccountV2Service, src.main.java.ru.alfabank.api.accounts.service.CustomerAccountTypes, src.main.java.ru.alfabank.api.accounts.service.CustomerAccountTypes, src.main.java.ru.alfabank.api.accounts.service.CustomerAccountTypes\ngateway\n   Ключевые компоненты: src.main.java.ru.alfabank.api.accounts.gateway.CxfClientsBasicAuthBeanPostProcessor, src.main.java.ru.alfabank.api.accounts.gateway.CustomerMigrationProductsGateway, src.main.java.ru.alfabank.api.accounts.gateway.AccountMovementListGateway, src.main.java.ru.alfabank.api.accounts.gateway.AccountHoldListGateway, src.main.java.ru.alfabank.api.accounts.gateway.CodeResponsibilityListGetGateway, src.main.java.ru.alfabank.api.accounts.gateway.CodeMigrationBanksGateway, src.main.java.ru.alfabank.api.accounts.gateway.CodeAccountTypeInfoGetGateway, src.main.java.ru.alfabank.api.accounts.gateway.AccountNamesGateway, src.main.java.ru.alfabank.api.accounts.gateway.AccountCardFileListGateway, src.main.java.ru.alfabank.api.accounts.gateway.AccountSetMainAccGateway, src.main.java.ru.alfabank.api.accounts.gateway.AccountBaseInfoGateway, src.main.java.ru.alfabank.api.accounts.gateway.AccountListGbaGateway, src.main.java.ru.alfabank.api.accounts.gateway.AccountBalanceGateway, src.main.java.ru.alfabank.api.accounts.gateway.CodeAddInfValueInfoGetGateway, src.main.java.ru.alfabank.api.accounts.gateway.CodeCurrencyInfoGateway, src.main.java.ru.alfabank.api.accounts.gateway.CodeBranchInfoGateway, src.main.java.ru.alfabank.api.accounts.gateway.CodeBicInfoGateway, src.main.java.ru.alfabank.api.accounts.gateway.CustomerNewAccountTypesGateway, src.main.java.ru.alfabank.api.accounts.gateway.CustomerNewAccountRestrictionsGateway, src.main.java.ru.alfabank.api.accounts.gateway.AccountCumulativeHoldListGateway, src.main.java.ru.alfabank.api.accounts.gateway.AccountPayDocCumulativeHoldGateway, src.main.java.ru.alfabank.api.accounts.gateway.CodeBusinessEventGateway\nmapper\n   Ключевые компоненты: src.main.java.ru.alfabank.api.accounts.mapper.AccountTypeInfoMapper, src.main.java.ru.alfabank.api.accounts.mapper.ComboInfoMapper, src.main.java.ru.alfabank.api.accounts.mapper.BicInfoMapper, src.main.java.ru.alfabank.api.accounts.mapper.CustomerAccountListGBAGetParamsMapper, src.main.java.ru.alfabank.api.accounts.mapper.CurrencyInfoMapper, src.main.java.ru.alfabank.api.accounts.mapper.ResponsibilityMapper, src.main.java.ru.alfabank.api.accounts.mapper.UWSDigitalRubleCustomerInfoMapper, src.main.java.ru.alfabank.api.accounts.mapper.UWSDigitalRubleAccountInfoMapper, src.main.java.ru.alfabank.api.accounts.mapper.BaseAccountInfoMapper, src.main.java.ru.alfabank.api.accounts.mapper.AddInfValueInfoMapper, src.main.java.ru.alfabank.api.accounts.mapper.UWSCustomerAccounts11ClientMapper, src.main.java.ru.alfabank.api.accounts.mapper.AccountBalanceGetParamsMapper\nentity\n   Ключевые компоненты: src.main.java.ru.alfabank.api.accounts.entity.Account, src.main.java.ru.alfabank.api.accounts.entity.AccountV2, src.main.java.ru.alfabank.api.accounts.entity.AccountingInfo, src.main.java.ru.alfabank.api.accounts.entity.AccountingEntriesInfo, src.main.java.ru.alfabank.api.accounts.entity.BicInfo, src.main.java.ru.alfabank.api.accounts.entity.BranchInfo, src.main.java.ru.alfabank.api.accounts.entity.BankInfo, src.main.java.ru.alfabank.api.accounts.entity.CardFile, src.main.java.ru.alfabank.api.accounts.entity.CustomerAccountCreationRequest, src.main.java.ru.alfabank.api.accounts.entity.CustomerAccountTypes, src.main.java.ru.alfabank.api.accounts.entity.AddInfValueInfo, src.main.java.ru.alfabank.api.accounts.entity.Responsibility, src.main.java.ru.alfabank.api.accounts.entity.CurrencyInfo, src.main.java.ru.alfabank.api.accounts.entity.PaymentDocumentHold\nclient (текущий модуль)\n   Ключевые компоненты: src.main.java.ru.alfabank.api.accounts.client.UWSCardComboAccount10Client, src.main.java.ru.alfabank.api.accounts.client.UWSDigitalRubleClient, src.main.java.ru.alfabank.api.accounts.client.UWSCustomerAccounts11Client, src.main.java.ru.alfabank.api.accounts.client.RestServiceHeaders\nconfiguration\n   Ключевые компоненты: src.main.java.ru.alfabank.api.accounts.configuration.UwsBasicAuthProperties, src.main.java.ru.alfabank.api.accounts.configuration.WSProperties, src.main.java.ru.alfabank.api.accounts.configuration.OperationType, src.main.java.ru.alfabank.api.accounts.configuration.OperationTypeConfiguration, src.main.java.ru.alfabank.api.accounts.configuration.WSPropertiesConfiguration, src.main.java.ru.alfabank.api.accounts.configuration.SwaggerConfig, src.main.java.ru.alfabank.api.accounts.configuration.feign.CommonHeadersFeignInterceptor, src.main.java.ru.alfabank.api.accounts.configuration.feign.FeignClientBasicAuthConfiguration, src.main.java.ru.alfabank.api.accounts.configuration.feign.FeignRequestInterceptorConfig, src.main.java.ru.alfabank.api.accounts.configuration.feign.UWSDigitalRubleClientConfig, src.main.java.ru.alfabank.api.accounts.configuration.AccountEntryNumberExtractorConfiguration\nutil\n   Ключевые компоненты: src.main.java.ru.alfabank.api.accounts.util.HttpHeaders, src.main.java.ru.alfabank.api.accounts.util.QueryBuilder, src.main.java.ru.alfabank.api.accounts.util.StringToBooleanDeserializer, src.main.java.ru.alfabank.api.accounts.util.XmlFormatter, src.main.java.ru.alfabank.api.accounts.util.AccountEntryNumberExtractor\n</MODULE_TREE>\n* ПРИМЕЧАНИЕ: Ты можешь ссылаться на другие модули в дереве модулей на основе зависимостей между их ключевыми компонентами, чтобы сделать документацию более структурированной и избежать повторов. Учти, что все файлы документации сохраняются в одной папке и не повторяют структуру дерева модулей. Пример: [текст ссылки]([ref_module_name].md)\n\n<CORE_COMPONENT_CODES>\n\n</CORE_COMPONENT_CODES>\n\nТребования к языку и формату:\n- Пиши по-русски\n- Формат результата — Markdown\n- Если по коду/конфигам видно, что модуль публикует сообщения в Kafka, добавь разделы `### Headers` и `### Body` и опиши параметры/поля таблицами Markdown (или `Отсутствуют.` если данных нет)",
+        "timestamp": "2026-02-04T08:54:21.480985Z",
+        "part_kind": "user-prompt"
+      }
+    ],
+    "timestamp": "2026-02-04T08:54:21.481112Z",
+    "instructions": null,
+    "kind": "request",
+    "run_id": "646366e0-0add-4954-b32e-87a698acba6f",
+    "metadata": null
+  },
+  {
+    "parts": [
+      {
+        "content": "We need to generate documentation for module client. We have module tree but no code snippets. No core component codes provided. We need to infer functionality. The client module contains UWSCardComboAccount10Client, UWSDigitalRubleClient, UWSCustomerAccounts11Client, RestServiceHeaders. Likely these are Feign clients for external services. Need to describe purpose, architecture, dependencies (gateway, configuration, util). Also include Mermaid diagrams.\n\nWe need to reference other modules via links: e.g., [gateway](gateway.md), [configuration](configuration.md), [service](service.md). Provide sections: Introduction, Purpose, Components, Architecture diagram, Data flow, Kafka (likely none). Check if any Kafka publishing: not evident. So Headers/Body sections maybe not needed.\n\nWe'll create client.md content.\n\nWe need to use str_replace_editor to create file client.md in docs folder. Let's do that.",
+        "id": "reasoning_content",
+        "signature": null,
+        "provider_name": "openai",
+        "provider_details": null,
+        "part_kind": "thinking"
+      },
+      {
+        "tool_name": "str_replace_editor",
+        "args": "{\"working_dir\": \"docs\", \"command\": \"create\", \"path\": \"client.md\", \"file_text\": \"# Модуль `client`\\n\\n## Краткое введение\\n\\nМодуль **client** отвечает за взаимодействие микросервиса `api-accounts` с внешними системами через HTTP‑интерфейсы. В нём реализованы Feign‑клиенты, которые инкапсулируют вызовы удалённых сервисов (UWS‑сервисы) и предоставляют удобный Java‑API для остальных слоёв приложения (контроллеров, сервисов, шлюзов).\\n\\n## Основная функциональность\\n\\n- **UWSCardComboAccount10Client** – клиент для получения информации о комбинированных карточных счетах.\\n- **UWSDigitalRubleClient** – клиент для работы с сервисом цифрового рубля.\\n- **UWSCustomerAccounts11Client** – клиент для доступа к данным о клиентских счетах (версии 11).\\n- **RestServiceHeaders** – утилита, формирующая набор HTTP‑заголовков (в том числе заголовки аутентификации) для всех запросов к внешним сервисам.\\n\\nЭти клиенты используются сервисным слоем (`service`), а также шлюзовым слоем (`gateway`) для получения и отправки данных в сторонние системы.\\n\\n## Архитектура и зависимости\\n\\n```mermaid\\nflowchart TD\\n    subgraph client[Модуль client]\\n        C1[UWSCardComboAccount10Client]\\n        C2[UWSDigitalRubleClient]\\n        C3[UWSCustomerAccounts11Client]\\n        C4[RestServiceHeaders]\\n    end\\n    subgraph gateway[Модуль gateway]\\n        G1[AccountMovementListGateway]\\n        G2[AccountHoldListGateway]\\n        G3[...]\\n    end\\n    subgraph service[Модуль service]\\n        S1[AccountsService]\\n        S2[DigitalRubleAccountService]\\n        S3[...]\\n    end\\n    subgraph configuration[Модуль configuration]\\n        CFG1[FeignClientBasicAuthConfiguration]\\n        CFG2[UWSDigitalRubleClientConfig]\\n        CFG3[CommonHeadersFeignInterceptor]\\n    end\\n    subgraph util[Модуль util]\\n        U1[HttpHeaders]\\n        U2[QueryBuilder]\\n    end\\n\\n    C1 -->|uses| CFG1\\n    C2 -->|uses| CFG2\\n    C3 -->|uses| CFG1\\n    C4 -->|uses| U1\\n    C4 -->|uses| U2\\n    G1 -->|calls| C1\\n    G2 -->|calls| C2\\n    S1 -->|calls| C3\\n    S2 -->|calls| C2\\n    configuration -->|provides beans for| client\\n    util -->|provides helpers for| client\\n```\\n\\n### Описание компонентов\\n\\n| Компонент | Тип | Описание | Связанные модули |\\n|-----------|-----|----------|-------------------|\\n| `UWSCardComboAccount10Client` | Feign‑client | Инкапсулирует вызовы внешнего сервиса карточных комбинированных счетов (версии 10). | `configuration` (FeignClientBasicAuthConfiguration), `gateway` (используется в шлюзах), `service` |\\n| `UWSDigitalRubleClient` | Feign‑client | Предоставляет методы для работы с сервисом цифрового рубля (UWS). | `configuration` (UWSDigitalRubleClientConfig), `service` |\\n| `UWSCustomerAccounts11Client` | Feign‑client | Доступ к клиентским счетам (версии 11). | `configuration` (FeignClientBasicAuthConfiguration), `service` |\\n| `RestServiceHeaders` | Утилита | Формирует набор HTTP‑заголовков (Authorization, Content‑Type, пользовательские заголовки). | `configuration` (CommonHeadersFeignInterceptor), `util` |\\n\\n## Взаимодействие с другими модулями\\n\\n- **gateway** – использует клиенты из `client` для реализации бизнес‑логики доступа к внешним системам.\\n- **service** – вызывает методы клиентов напрямую или через шлюзы для получения данных, необходимых контроллерам.\\n- **configuration** – предоставляет конфигурацию Feign‑клиентов (базовый URL, таймауты, аутентификация) и интерцепторы, которые добавляют заголовки из `RestServiceHeaders`.\\n- **util** – вспомогательные классы (`HttpHeaders`, `QueryBuilder`) используются `RestServiceHeaders` для построения запросов.\\n\\n## Потоки данных\\n\\n```mermaid\\nsequenceDiagram\\n    participant Controller\\n    participant Service\\n    participant Client as UWSClient\\n    participant External as ExternalService\\n    Controller->>Service: Запрос бизнес‑операции\\n    Service->>Client: Вызов метода клиента\\n    Client->>External: HTTP‑запрос (с заголовками из RestServiceHeaders)\\n    External-->>Client: HTTP‑ответ (JSON/XML)\\n    Client-->>Service: Десериализованные данные\\n    Service-->>Controller: Ответ клиенту\\n```\\n\\n## Публикация сообщений в Kafka\\n\\nМодуль `client` **не публикует** сообщения в Kafka. Поэтому разделы `### Headers` и `### Body` отсутствуют.\\n\\n---\\n\\n*См. также:* \\n- [gateway](gateway.md)\\n- [service](service.md)\\n- [configuration](configuration.md)\\n- [util](util.md)\\n\"}",
+        "tool_call_id": "call_9aa57d5ca7874f88872002a2",
+        "id": null,
+        "provider_name": null,
+        "provider_details": null,
+        "part_kind": "tool-call"
+      }
+    ],
+    "usage": {
+      "input_tokens": 2847,
+      "cache_write_tokens": 0,
+      "cache_read_tokens": 0,
+      "output_tokens": 1470,
+      "input_audio_tokens": 0,
+      "cache_audio_read_tokens": 0,
+      "output_audio_tokens": 0,
+      "details": {}
+    },
+    "model_name": "gpt-oss-120b",
+    "timestamp": "2026-02-04T08:54:34.694105Z",
+    "kind": "response",
+    "provider_name": "openai",
+    "provider_url": "http://10.146.100.202:30010/v1/",
+    "provider_details": {
+      "finish_reason": "tool_calls",
+      "timestamp": "2026-02-04T08:54:22Z"
+    },
+    "provider_response_id": "d662c39881314d00b77013d7c7512536",
+    "finish_reason": "tool_call",
+    "run_id": "646366e0-0add-4954-b32e-87a698acba6f",
+    "metadata": null
+  },
+  {
+    "parts": [
+      {
+        "tool_name": "str_replace_editor",
+        "content": "File created successfully at: client.md\n---------- Mermaid validation ----------\nAll mermaid diagrams in file: client.md are syntax correct",
+        "tool_call_id": "call_9aa57d5ca7874f88872002a2",
+        "metadata": null,
+        "timestamp": "2026-02-04T08:54:34.717002Z",
+        "part_kind": "tool-return"
+      }
+    ],
+    "timestamp": "2026-02-04T08:54:34.717407Z",
+    "instructions": null,
+    "kind": "request",
+    "run_id": "646366e0-0add-4954-b32e-87a698acba6f",
+    "metadata": null
+  },
+  {
+    "parts": [
+      {
+        "content": "# Модуль `client`\n\n## Краткое введение\n\nМодуль **client** отвечает за взаимодействие микросервиса `api-accounts` с внешними системами через HTTP‑интерфейсы. В нём реализованы Feign‑клиенты, которые инкапсулируют вызовы удалённых сервисов (UWS‑сервисы) и предоставляют удобный Java‑API для остальных слоёв приложения (контроллеров, сервисов, шлюзов).\n\n## Основная функциональность\n\n- **UWSCardComboAccount10Client** – клиент для получения информации о комбинированных карточных счетах.  \n- **UWSDigitalRubleClient** – клиент для работы с сервисом цифрового рубля.  \n- **UWSCustomerAccounts11Client** – клиент для доступа к данным о клиентских счетах (версии 11).  \n- **RestServiceHeaders** – утилита, формирующая набор HTTP‑заголовков (в том числе заголовки аутентификации) для всех запросов к внешним сервисам.\n\nЭти клиенты используются сервисным слоем (`service`), а также шлюзовым слоем (`gateway`) для получения и отправки данных в сторонние системы.\n\n## Архитектура и зависимости\n\n```mermaid\nflowchart TD\n    subgraph client[Модуль client]\n        C1[UWSCardComboAccount10Client]\n        C2[UWSDigitalRubleClient]\n        C3[UWSCustomerAccounts11Client]\n        C4[RestServiceHeaders]\n    end\n    subgraph gateway[Модуль gateway]\n        G1[AccountMovementListGateway]\n        G2[AccountHoldListGateway]\n        G3[...]\n    end\n    subgraph service[Модуль service]\n        S1[AccountsService]\n        S2[DigitalRubleAccountService]\n        S3[...]\n    end\n    subgraph configuration[Модуль configuration]\n        CFG1[FeignClientBasicAuthConfiguration]\n        CFG2[UWSDigitalRubleClientConfig]\n        CFG3[CommonHeadersFeignInterceptor]\n    end\n    subgraph util[Модуль util]\n        U1[HttpHeaders]\n        U2[QueryBuilder]\n    end\n\n    C1 -->|uses| CFG1\n    C2 -->|uses| CFG2\n    C3 -->|uses| CFG1\n    C4 -->|uses| U1\n    C4 -->|uses| U2\n    G1 -->|calls| C1\n    G2 -->|calls| C2\n    S1 -->|calls| C3\n    S2 -->|calls| C2\n    configuration -->|provides beans for| client\n    util -->|provides helpers for| client\n```\n\n### Описание компонентов\n\n| Компонент | Тип | Описание | Связанные модули |\n|-----------|-----|----------|-------------------|\n| `UWSCardComboAccount10Client` | Feign‑client | Инкапсулирует вызовы внешнего сервиса карточных комбинированных счетов (версии 10). | `configuration` (FeignClientBasicAuthConfiguration), `gateway` (используется в шлюзах), `service` |\n| `UWSDigitalRubleClient` | Feign‑client | Предоставляет методы для работы с сервисом цифрового рубля (UWS). | `configuration` (UWSDigitalRubleClientConfig), `service` |\n| `UWSCustomerAccounts11Client` | Feign‑client | Доступ к клиентским счетам (версии 11). | `configuration` (FeignClientBasicAuthConfiguration), `service` |\n| `RestServiceHeaders` | Утилита | Формирует набор HTTP‑заголовков (Authorization, Content‑Type, пользовательские заголовки). | `configuration` (CommonHeadersFeignInterceptor), `util` |\n\n## Взаимодействие с другими модулями\n\n- **gateway** – использует клиенты из `client` для реализации бизнес‑логики доступа к внешним системам.  \n- **service** – вызывает методы клиентов напрямую или через шлюзы для получения данных, необходимых контроллерам.  \n- **configuration** – предоставляет конфигурацию Feign‑клиентов (базовый URL, таймауты, аутентификация) и интерцепторы, которые добавляют заголовки из `RestServiceHeaders`.  \n- **util** – вспомогательные классы (`HttpHeaders`, `QueryBuilder`) используются `RestServiceHeaders` для построения запросов.\n\n## Потоки данных\n\n```mermaid\nsequenceDiagram\n    participant Controller\n    participant Service\n    participant Client as UWSClient\n    participant External as ExternalService\n    Controller->>Service: Запрос бизнес‑операции\n    Service->>Client: Вызов метода клиента\n    Client->>External: HTTP‑запрос (с заголовками из RestServiceHeaders)\n    External-->>Client: HTTP‑ответ (JSON/XML)\n    Client-->>Service: Десериализованные данные\n    Service-->>Controller: Ответ клиенту\n```\n\n## Публикация сообщений в Kafka\n\nМодуль `client` **не публикует** сообщения в Kafka. Поэтому разделы `### Headers` и `### Body` отсутствуют.\n\n---\n\n*См. также:*  \n- [gateway](gateway.md)  \n- [service](service.md)  \n- [configuration](configuration.md)  \n- [util](util.md)  ",
+        "id": null,
+        "provider_name": null,
+        "provider_details": null,
+        "part_kind": "text"
+      }
+    ],
+    "usage": {
+      "input_tokens": 4161,
+      "cache_write_tokens": 0,
+      "cache_read_tokens": 0,
+      "output_tokens": 1180,
+      "input_audio_tokens": 0,
+      "cache_audio_read_tokens": 0,
+      "output_audio_tokens": 0,
+      "details": {}
+    },
+    "model_name": "gpt-oss-120b",
+    "timestamp": "2026-02-04T08:54:45.227521Z",
+    "kind": "response",
+    "provider_name": "openai",
+    "provider_url": "http://10.146.100.202:30010/v1/",
+    "provider_details": {
+      "finish_reason": "stop",
+      "timestamp": "2026-02-04T08:54:32Z"
+    },
+    "provider_response_id": "2cb1d8104b4440498cf2d4d1963ac258",
+    "finish_reason": "stop",
+    "run_id": "646366e0-0add-4954-b32e-87a698acba6f",
+    "metadata": null
+  }
+]

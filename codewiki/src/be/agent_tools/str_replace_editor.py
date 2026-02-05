@@ -449,8 +449,13 @@ class EditTool:
 
     def create_file(self, path: Path, file_text: str):
         if not path.parent.exists():
-            self.logs.append(f"The parent directory {self._get_display_path(path.parent)} does not exist. Please create it first.")
-            return
+            try:
+                path.parent.mkdir(parents=True, exist_ok=True)
+            except Exception as e:
+                self.logs.append(
+                    f"The parent directory {self._get_display_path(path.parent)} could not be created: {e}"
+                )
+                return
         self.write_file(path, file_text)
         self._file_history[path].append(file_text)
         self.logs.append(f"File created successfully at: {self._get_display_path(path)}")

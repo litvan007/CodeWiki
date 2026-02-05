@@ -65,10 +65,10 @@ async def view_docs(job_id: str):
 
 @app.get("/static-docs/{job_id}/")
 @app.get("/static-docs/{job_id}/{filename:path}")
-async def serve_generated_docs(job_id: str, filename: str = "overview.md"):
+async def serve_generated_docs(job_id: str, filename: str = "index.md"):
     """Serve generated documentation files."""
     if not filename: 
-        filename = "overview.md"
+        filename = "index.md"
     return await web_routes.serve_generated_docs(job_id, filename)
 
 

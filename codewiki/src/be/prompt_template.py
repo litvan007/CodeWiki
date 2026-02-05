@@ -1,145 +1,185 @@
 SYSTEM_PROMPT = """
 <ROLE>
-You are an AI documentation assistant. Your task is to generate comprehensive system documentation based on a given module name and its core code components.
+Ты — ведущий системный аналитик и AI-ассистент по документации. Ты отлично разбираешься в программировании и глубоко понимаешь работу Apache Kafka.
+Твоя задача — генерировать исчерпывающую системную документацию по модулю, опираясь на переданное имя модуля и его ключевые компоненты кода.
 </ROLE>
 
 <OBJECTIVES>
-Create documentation that helps developers and maintainers understand:
-1. The module's purpose and core functionality
-2. Architecture and component relationships
-3. How the module fits into the overall system
+Сформировать документацию, которая помогает разработчикам и сопровождающим понять:
+1. Назначение модуля и его ключевую функциональность
+2. Архитектуру и связи компонентов
+3. Как модуль вписывается в общую систему
 </OBJECTIVES>
 
 <DOCUMENTATION_STRUCTURE>
-Generate documentation following this structure:
+Сгенерируй документацию, следуя этой структуре. Все файлы модуля должны лежать в папке `{module_name}/`.
 
-1. **Main Documentation File** (`{module_name}.md`):
-   - Brief introduction and purpose
-   - Architecture overview with diagrams
-   - High-level functionality of each sub-module including references to its documentation file
-   - Link to other module documentation instead of duplicating information
+1. **Основной файл документации** (`{module_name}/{module_name}.md`):
+   - Краткое введение и назначение
+   - В самом начале добавь ссылки на `request.md` и `response.md` из этой же папки
+   - Обзор архитектуры с диаграммами
+   - Высокоуровневое описание функциональности каждого подмодуля со ссылками на его файл документации
+   - Ссылки на документацию других модулей вместо дублирования информации
 
-2. **Sub-module Documentation** (if applicable):
-   - Detailed descriptions of each sub-module saved in the working directory under the name of `sub-module_name.md`
-   - Core components and their responsibilities
+2. **Документация запроса** (`{module_name}/request.md`):
+   - Полная структура входных данных (параметры, заголовки, тело, схемы)
+   - Таблицы параметров там, где это уместно
 
-3. **Visual Documentation**:
-   - Mermaid diagrams for architecture, dependencies, and data flow
-   - Component interaction diagrams
-   - Process flow diagrams where relevant
+3. **Документация ответа** (`{module_name}/response.md`):
+   - Полная структура выходных данных (коды, тело, ошибки, схемы)
+   - Таблицы полей там, где это уместно
+
+4. **Документация подмодулей** (если применимо):
+   - Для каждого подмодуля используй папку `sub_module_name/`
+   - Основной файл подмодуля: `sub_module_name/sub_module_name.md`
+   - Рядом с ним: `request.md` и `response.md`
+   - Ключевые компоненты и их ответственность
+
+5. **Визуальная документация**:
+   - Диаграммы Mermaid для архитектуры, зависимостей и потоков данных
+   - Диаграммы взаимодействия компонентов
+   - Диаграммы процессов там, где это уместно
+
+6. **Документация для продьюсера Kafka (если по коду/конфигам видно, что модуль публикует сообщения в Kafka)**:
+   - Документация ориентирована на продьюсера, который пишет в топик, связанный с модулем `{module_name}`
+   - Используй заголовки третьего уровня: `### Headers` и `### Body`
+   - Если для публикации в Kafka видны заголовки сообщения (message headers), опиши их в таблице Markdown (см. формат ниже), иначе напиши ровно: `Отсутствуют.`
+   - Если видна структура тела сообщения (payload), опиши её в таблице Markdown (см. формат ниже), иначе напиши ровно: `Отсутствуют.`
+   - Таблица Markdown должна иметь столбцы:
+     - Параметр
+     - Тип данных
+     - Обязательность (Да/Нет)
+     - Описание (по-русски, понятное)
+     - Пример значения (если нет в коде — сгенерируй уместный по смыслу)
+   - Имя параметра берётся из аннотации/метаданных, если оно явно задано, иначе — из имени поля/параметра в коде
 </DOCUMENTATION_STRUCTURE>
 
 <WORKFLOW>
-1. Analyze the provided code components and module structure, explore the not given dependencies between the components if needed
-2. Create the main `{module_name}.md` file with overview and architecture in working directory
-3. Use `generate_sub_module_documentation` to generate detailed sub-modules documentation for COMPLEX modules which at least have more than 1 code file and are able to clearly split into sub-modules
-4. Include relevant Mermaid diagrams throughout the documentation
-5. After all sub-modules are documented, adjust `{module_name}.md` with ONLY ONE STEP to ensure all generated files including sub-modules documentation are properly cross-refered
+1. Проанализируй предоставленные компоненты кода и структуру модуля; при необходимости исследуй неявные зависимости между компонентами
+2. Создай папку `{module_name}/` и сгенерируй три файла: `{module_name}.md`, `request.md`, `response.md`
+3. Используй `generate_sub_module_documentation` для генерации детальной документации по подмодулям для СЛОЖНЫХ модулей, у которых как минимум больше одного файла кода и которые можно явно разделить на подмодули
+4. Включай релевантные Mermaid-диаграммы в документацию
+5. После документирования всех подмодулей одним шагом обнови `{module_name}/{module_name}.md`, чтобы все сгенерированные файлы (включая подмодули) были корректно перекрёстно связаны
 </WORKFLOW>
 
 <AVAILABLE_TOOLS>
-- `str_replace_editor`: File system operations for creating and editing documentation files
-- `read_code_components`: Explore additional code dependencies not included in the provided components
-- `generate_sub_module_documentation`: Generate detailed documentation for individual sub-modules via sub-agents
+- `str_replace_editor`: операции с файловой системой для создания и редактирования файлов документации
+- `read_code_components`: исследование дополнительных зависимостей кода, не включённых в предоставленные компоненты
+- `generate_sub_module_documentation`: генерация детальной документации по отдельным подмодулям через саб-агентов
 </AVAILABLE_TOOLS>
 {custom_instructions}
 """.strip()
 
 LEAF_SYSTEM_PROMPT = """
 <ROLE>
-You are an AI documentation assistant. Your task is to generate comprehensive system documentation based on a given module name and its core code components.
+Ты — ведущий системный аналитик и AI-ассистент по документации. Ты отлично разбираешься в программировании и глубоко понимаешь работу Apache Kafka.
+Твоя задача — сгенерировать исчерпывающую системную документацию по модулю на основе имени модуля и его ключевых компонентов кода.
 </ROLE>
 
 <OBJECTIVES>
-Create a comprehensive documentation that helps developers and maintainers understand:
-1. The module's purpose and core functionality
-2. Architecture and component relationships
-3. How the module fits into the overall system
+Сформировать документацию, которая помогает разработчикам и сопровождающим понять:
+1. Назначение модуля и его ключевую функциональность
+2. Архитектуру и связи компонентов
+3. Как модуль вписывается в общую систему
 </OBJECTIVES>
 
 <DOCUMENTATION_REQUIREMENTS>
-Generate documentation following the following requirements:
-1. Structure: Brief introduction → comprehensive documentation with Mermaid diagrams
-2. Diagrams: Include architecture, dependencies, data flow, component interaction, and process flows as relevant
-3. References: Link to other module documentation instead of duplicating information
+Сгенерируй документацию со следующими требованиями. Все файлы модуля должны лежать в папке `{module_name}/`:
+1. Основной файл документации: `{module_name}/{module_name}.md` (в начале дай ссылки на `request.md` и `response.md`)
+2. Документация запроса: `{module_name}/request.md`
+3. Документация ответа: `{module_name}/response.md`
+4. Структура: краткое введение → подробная документация с Mermaid-диаграммами
+5. Диаграммы: включай архитектуру, зависимости, потоки данных, взаимодействие компонентов и процессы (если уместно)
+6. Ссылки: давай ссылки на документацию других модулей вместо дублирования информации
+7. Если из кода/конфигов видно, что модуль публикует сообщения в Kafka:
+   - добавь секции `### Headers` и `### Body`
+   - для каждой секции либо таблица Markdown с параметрами, либо `Отсутствуют.`
+   - таблица Markdown: Параметр | Тип данных | Обязательность | Описание | Пример значения
 </DOCUMENTATION_REQUIREMENTS>
 
 <WORKFLOW>
-1. Analyze provided code components and module structure
-2. Explore dependencies between components if needed
-3. Generate complete {module_name}.md documentation file
+1. Проанализируй предоставленные компоненты кода и структуру модуля
+2. При необходимости исследуй зависимости между компонентами
+3. Создай папку `{module_name}/` и сгенерируй три файла: `{module_name}.md`, `request.md`, `response.md`
 </WORKFLOW>
 
 <AVAILABLE_TOOLS>
-- `str_replace_editor`: File system operations for creating and editing documentation files
-- `read_code_components`: Explore additional code dependencies not included in the provided components
+- `str_replace_editor`: операции с файловой системой для создания и редактирования файлов документации
+- `read_code_components`: исследование дополнительных зависимостей кода, не включённых в предоставленные компоненты
 </AVAILABLE_TOOLS>
 {custom_instructions}
 """.strip()
 
 USER_PROMPT = """
-Generate comprehensive documentation for the {module_name} module using the provided module tree and core components.
+Сгенерируй исчерпывающую документацию для модуля {module_name}, используя предоставленное дерево модулей и ключевые компоненты.
 
 <MODULE_TREE>
 {module_tree}
 </MODULE_TREE>
-* NOTE: You can refer the other modules in the module tree based on the dependencies between their core components to make the documentation more structured and avoid repeating the same information. Know that all documentation files are saved in the same folder not structured as module tree. e.g. [alt text]([ref_module_name].md)
+* ПРИМЕЧАНИЕ: Ты можешь ссылаться на другие модули в дереве модулей на основе зависимостей между их ключевыми компонентами, чтобы сделать документацию более структурированной и избежать повторов. Учти, что у каждого модуля своя папка `ref_module_name/`, а основной файл находится по пути `ref_module_name/ref_module_name.md`. Пример ссылки: [текст ссылки](ref_module_name/ref_module_name.md)
 
 <CORE_COMPONENT_CODES>
 {formatted_core_component_codes}
 </CORE_COMPONENT_CODES>
+
+Требования к языку и формату:
+- Пиши по-русски
+- Формат результата — Markdown
+- Если по коду/конфигам видно, что модуль публикует сообщения в Kafka, добавь разделы `### Headers` и `### Body` и опиши параметры/поля таблицами Markdown (или `Отсутствуют.` если данных нет)
 """.strip()
 
 REPO_OVERVIEW_PROMPT = """
-You are an AI documentation assistant. Your task is to generate a brief overview of the {repo_name} repository.
+Ты — AI-ассистент по документации. Твоя задача — сгенерировать краткий обзор репозитория {repo_name}.
 
-The overview should be a brief documentation of the repository, including:
-- The purpose of the repository
-- The end-to-end architecture of the repository visualized by mermaid diagrams
-- The references to the core modules documentation
+Обзор должен включать:
+- Назначение репозитория
+- Сквозную архитектуру репозитория, визуализированную Mermaid-диаграммами
+- Ссылки на документацию ключевых модулей
 
-Provide `{repo_name}` repo structure and its core modules documentation:
+Структура репозитория и документация ключевых модулей:
 <REPO_STRUCTURE>
 {repo_structure}
 </REPO_STRUCTURE>
 
-Please generate the overview of the `{repo_name}` repository in markdown format with the following structure:
+Сгенерируй обзор репозитория `{repo_name}` в формате Markdown со следующей структурой:
 <OVERVIEW>
 overview_content
 </OVERVIEW>
 """.strip()
 
 MODULE_OVERVIEW_PROMPT = """
-You are an AI documentation assistant. Your task is to generate a brief overview of `{module_name}` module.
+Ты — AI-ассистент по документации. Твоя задача — сгенерировать краткий обзор модуля `{module_name}`.
 
-The overview should be a brief documentation of the module, including:
-- The purpose of the module
-- The architecture of the module visualized by mermaid diagrams
-- The references to the core components documentation
+Обзор должен включать:
+- Назначение модуля
+- Архитектуру модуля, визуализированную Mermaid-диаграммами
+- Ссылки на документацию ключевых компонентов
 
-Provide repo structure and core components documentation of the `{module_name}` module:
+Структура репозитория и документация ключевых компонентов модуля `{module_name}`:
 <REPO_STRUCTURE>
 {repo_structure}
 </REPO_STRUCTURE>
 
-Please generate the overview of the `{module_name}` module in markdown format with the following structure:
+Сгенерируй обзор модуля `{module_name}` в формате Markdown со следующей структурой:
 <OVERVIEW>
 overview_content
 </OVERVIEW>
 """.strip()
 
 CLUSTER_REPO_PROMPT = """
-Here is list of all potential core components of the repository (It's normal that some components are not essential to the repository):
+Ниже список всех потенциальных ключевых компонентов репозитория (нормально, если часть компонентов не является критичной):
 <POTENTIAL_CORE_COMPONENTS>
 {potential_core_components}
 </POTENTIAL_CORE_COMPONENTS>
 
-Please group the components into groups such that each group is a set of components that are closely related to each other and together they form a module. DO NOT include components that are not essential to the repository.
-Firstly reason about the components and then group them and return the result in the following format:
+Сгруппируй компоненты так, чтобы каждая группа была набором тесно связанных компонентов, которые вместе образуют модуль.
+НЕ включай компоненты, которые не являются критичными для репозитория.
+
+Сначала кратко обоснуй группировку, затем верни результат строго в следующем формате:
 <GROUPED_COMPONENTS>
 {{
     "module_name_1": {{
-        "path": <path_to_the_module_1>, # the path to the module can be file or directory
+        "path": <path_to_the_module_1>,  # путь может быть файлом или директорией
         "components": [
             <component_name_1>,
             <component_name_2>,
@@ -160,24 +200,25 @@ Firstly reason about the components and then group them and return the result in
 """.strip()
 
 CLUSTER_MODULE_PROMPT = """
-Here is the module tree of a repository:
+Ниже дерево модулей репозитория:
 
 <MODULE_TREE>
 {module_tree}
 </MODULE_TREE>
 
-Here is list of all potential core components of the module {module_name} (It's normal that some components are not essential to the module):
+Ниже список всех потенциальных ключевых компонентов модуля {module_name} (нормально, если часть компонентов не является критичной):
 <POTENTIAL_CORE_COMPONENTS>
 {potential_core_components}
 </POTENTIAL_CORE_COMPONENTS>
 
-Please group the components into groups such that each group is a set of components that are closely related to each other and together they form a smaller module. DO NOT include components that are not essential to the module.
+Сгруппируй компоненты так, чтобы каждая группа была набором тесно связанных компонентов, которые вместе образуют меньший модуль.
+НЕ включай компоненты, которые не являются критичными для модуля.
 
-Firstly reason based on given context and then group them and return the result in the following format:
+Сначала кратко обоснуй группировку, затем верни результат строго в следующем формате:
 <GROUPED_COMPONENTS>
 {{
     "module_name_1": {{
-        "path": <path_to_the_module_1>, # the path to the module can be file or directory
+        "path": <path_to_the_module_1>,  # путь может быть файлом или директорией
         "components": [
             <component_name_1>,
             <component_name_2>,
@@ -198,16 +239,16 @@ Firstly reason based on given context and then group them and return the result 
 """.strip()
 
 FILTER_FOLDERS_PROMPT = """
-Here is the list of relative paths of files, folders in 2-depth of project {project_name}:
+Ниже список относительных путей файлов и папок на глубине 2 в проекте {project_name}:
 ```
 {files}
 ```
 
-In order to analyze the core functionality of the project, we need to analyze the files, folders representing the core functionality of the project.
+Чтобы проанализировать ключевую функциональность проекта, нужно выбрать файлы/папки, представляющие core.
 
-Please shortlist the files, folders representing the core functionality and ignore the files, folders that are not essential to the core functionality of the project (e.g. test files, documentation files, etc.) from the list above.
+Составь шортлист файлов/папок, относящихся к ключевой функциональности, и исключи всё несущественное (например, тесты, документацию и т.п.).
 
-Reasoning at first, then return the list of relative paths in JSON format.
+Сначала кратко объясни логику выбора, затем верни список относительных путей строго в JSON формате.
 """
 
 from typing import Dict, Any
@@ -228,148 +269,133 @@ EXTENSION_TO_LANGUAGE = {
     ".hpp": "cpp",
     ".tsx": "typescript",
     ".cc": "cpp",
-    ".hpp": "cpp",
     ".cxx": "cpp",
     ".jsx": "javascript",
     ".mjs": "javascript",
     ".cjs": "javascript",
-    ".jsx": "javascript",
     ".cs": "csharp",
     ".php": "php",
     ".phtml": "php",
-    ".inc": "php"
+    ".inc": "php",
 }
 
 
-def format_user_prompt(module_name: str, core_component_ids: list[str], components: Dict[str, Any], module_tree: dict[str, any]) -> str:
+def format_user_prompt(
+    module_name: str,
+    core_component_ids: list[str],
+    components: Dict[str, Any],
+    module_tree: dict[str, Any],
+) -> str:
     """
-    Format the user prompt with module name and organized core component codes.
-    
-    Args:
-        module_name: Name of the module to document
-        core_component_ids: List of component IDs to include
-        components: Dictionary mapping component IDs to CodeComponent objects
-    
-    Returns:
-        Formatted user prompt string
-    """
+    Формирует пользовательский промпт с именем модуля и сгруппированным кодом ключевых компонентов.
 
-    # format module tree
-    lines = []
-    
-    def _format_module_tree(module_tree: dict[str, any], indent: int = 0):
-        for key, value in module_tree.items():
+    Args:
+        module_name: имя модуля
+        core_component_ids: список ID компонентов, которые нужно включить
+        components: словарь component_id -> CodeComponent
+        module_tree: дерево модулей
+
+    Returns:
+        Сформированный текст USER_PROMPT
+    """
+    lines: list[str] = []
+
+    def _format_module_tree(tree: dict[str, Any], indent: int = 0) -> None:
+        for key, value in tree.items():
             if key == module_name:
-                lines.append(f"{'  ' * indent}{key} (current module)")
+                lines.append(f"{'  ' * indent}{key} (текущий модуль)")
             else:
                 lines.append(f"{'  ' * indent}{key}")
-            
-            lines.append(f"{'  ' * (indent + 1)} Core components: {', '.join(value['components'])}")
-            if isinstance(value["children"], dict) and len(value["children"]) > 0:
-                lines.append(f"{'  ' * (indent + 1)} Children:")
+
+            lines.append(f"{'  ' * (indent + 1)} Ключевые компоненты: {', '.join(value['components'])}")
+            if isinstance(value.get("children"), dict) and len(value["children"]) > 0:
+                lines.append(f"{'  ' * (indent + 1)} Дочерние модули:")
                 _format_module_tree(value["children"], indent + 2)
-    
+
     _format_module_tree(module_tree, 0)
     formatted_module_tree = "\n".join(lines)
 
-    # print(f"Formatted module tree:\n{formatted_module_tree}")
-
-    # Group core component IDs by their file path
     grouped_components: dict[str, list[str]] = {}
     for component_id in core_component_ids:
         if component_id not in components:
             continue
         component = components[component_id]
         path = component.relative_path
-        if path not in grouped_components:
-            grouped_components[path] = []
-        grouped_components[path].append(component_id)
+        grouped_components.setdefault(path, []).append(component_id)
 
     core_component_codes = ""
     for path, component_ids_in_file in grouped_components.items():
-        core_component_codes += f"# File: {path}\n\n"
-        core_component_codes += f"## Core Components in this file:\n"
-        
+        core_component_codes += f"# Файл: {path}\n\n"
+        core_component_codes += "## Ключевые компоненты в этом файле:\n"
         for component_id in component_ids_in_file:
             core_component_codes += f"- {component_id}\n"
-        
-        core_component_codes += f"\n## File Content:\n```{EXTENSION_TO_LANGUAGE['.'+path.split('.')[-1]]}\n"
-        
-        # Read content of the file using the first component's file path
+
+        ext = "." + path.split(".")[-1]
+        language = EXTENSION_TO_LANGUAGE.get(ext, "text")
+
+        core_component_codes += f"\n## Содержимое файла:\n```{language}\n"
         try:
             core_component_codes += file_manager.load_text(components[component_ids_in_file[0]].file_path)
         except (FileNotFoundError, IOError) as e:
-            core_component_codes += f"# Error reading file: {e}\n"
-        
+            core_component_codes += f"# Ошибка чтения файла: {e}\n"
         core_component_codes += "```\n\n"
-        
-    return USER_PROMPT.format(module_name=module_name, formatted_core_component_codes=core_component_codes, module_tree=formatted_module_tree)
+
+    return USER_PROMPT.format(
+        module_name=module_name,
+        formatted_core_component_codes=core_component_codes,
+        module_tree=formatted_module_tree,
+    )
 
 
-
-def format_cluster_prompt(potential_core_components: str, module_tree: dict[str, any] = {}, module_name: str = None) -> str:
+def format_cluster_prompt(
+    potential_core_components: str,
+    module_tree: dict[str, Any] = {},
+    module_name: str | None = None,
+) -> str:
     """
-    Format the cluster prompt with potential core components and module tree.
+    Формирует промпт для кластеризации (группировки) потенциальных ключевых компонентов.
     """
+    lines: list[str] = []
 
-    # format module tree
-    lines = []
-
-    # print(f"Module tree:\n{json.dumps(module_tree, indent=2)}")
-    
-    def _format_module_tree(module_tree: dict[str, any], indent: int = 0):
-        for key, value in module_tree.items():
+    def _format_module_tree(tree: dict[str, Any], indent: int = 0) -> None:
+        for key, value in tree.items():
             if key == module_name:
-                lines.append(f"{'  ' * indent}{key} (current module)")
+                lines.append(f"{'  ' * indent}{key} (текущий модуль)")
             else:
                 lines.append(f"{'  ' * indent}{key}")
-            
-            lines.append(f"{'  ' * (indent + 1)} Core components: {', '.join(value['components'])}")
+
+            lines.append(f"{'  ' * (indent + 1)} Ключевые компоненты: {', '.join(value['components'])}")
             if ("children" in value) and isinstance(value["children"], dict) and len(value["children"]) > 0:
-                lines.append(f"{'  ' * (indent + 1)} Children:")
+                lines.append(f"{'  ' * (indent + 1)} Дочерние модули:")
                 _format_module_tree(value["children"], indent + 2)
-    
+
     _format_module_tree(module_tree, 0)
     formatted_module_tree = "\n".join(lines)
 
-
     if module_tree == {}:
         return CLUSTER_REPO_PROMPT.format(potential_core_components=potential_core_components)
-    else:
-        return CLUSTER_MODULE_PROMPT.format(potential_core_components=potential_core_components, module_tree=formatted_module_tree, module_name=module_name)
+    return CLUSTER_MODULE_PROMPT.format(
+        potential_core_components=potential_core_components,
+        module_tree=formatted_module_tree,
+        module_name=module_name,
+    )
 
 
-def format_system_prompt(module_name: str, custom_instructions: str = None) -> str:
+def format_system_prompt(module_name: str, custom_instructions: str | None = None) -> str:
     """
-    Format the system prompt with module name and optional custom instructions.
-    
-    Args:
-        module_name: Name of the module to document
-        custom_instructions: Optional custom instructions to append
-        
-    Returns:
-        Formatted system prompt string
+    Формирует system prompt с именем модуля и опциональными пользовательскими инструкциями.
     """
     custom_section = ""
     if custom_instructions:
         custom_section = f"\n\n<CUSTOM_INSTRUCTIONS>\n{custom_instructions}\n</CUSTOM_INSTRUCTIONS>"
-    
     return SYSTEM_PROMPT.format(module_name=module_name, custom_instructions=custom_section).strip()
 
 
-def format_leaf_system_prompt(module_name: str, custom_instructions: str = None) -> str:
+def format_leaf_system_prompt(module_name: str, custom_instructions: str | None = None) -> str:
     """
-    Format the leaf system prompt with module name and optional custom instructions.
-    
-    Args:
-        module_name: Name of the module to document
-        custom_instructions: Optional custom instructions to append
-        
-    Returns:
-        Formatted leaf system prompt string
+    Формирует leaf system prompt с именем модуля и опциональными пользовательскими инструкциями.
     """
     custom_section = ""
     if custom_instructions:
         custom_section = f"\n\n<CUSTOM_INSTRUCTIONS>\n{custom_instructions}\n</CUSTOM_INSTRUCTIONS>"
-    
     return LEAF_SYSTEM_PROMPT.format(module_name=module_name, custom_instructions=custom_section).strip()

@@ -31,12 +31,16 @@ def format_potential_core_components(leaf_nodes: List[str], components: Dict[str
     potential_core_components = ""
     potential_core_components_with_code = ""
     for file, leaf_nodes in dict(sorted(leaf_nodes_by_file.items())).items():
+        print(f"File: {file}")
         potential_core_components += f"# {file}\n"
         potential_core_components_with_code += f"# {file}\n"
         for leaf_node in leaf_nodes:
             potential_core_components += f"\t{leaf_node}\n"
             potential_core_components_with_code += f"\t{leaf_node}\n"
             potential_core_components_with_code += f"{components[leaf_node].source_code}\n"
+
+        if file == "main.py":
+            print( "potential_core_components_with_code:", leaf_node, components[leaf_node].source_code)
 
     return potential_core_components, potential_core_components_with_code
 
@@ -53,13 +57,18 @@ def cluster_modules(
     Cluster the potential core components into modules.
     """
     potential_core_components, potential_core_components_with_code = format_potential_core_components(leaf_nodes, components)
+    print("count_tokens(potential_core_components_with_code) <= config.max_token_per_module:", count_tokens(potential_core_components_with_code), config.max_token_per_module)
 
     if count_tokens(potential_core_components_with_code) <= config.max_token_per_module:
         logger.debug(f"Skipping clustering for {current_module_name} because the potential core components are too few: {count_tokens(potential_core_components_with_code)} tokens")
         return {}
 
     prompt = format_cluster_prompt(potential_core_components, current_module_tree, current_module_name)
+    with open(f'/Users/litvan/CodeWiki/temp/cluster_prompt_{current_module_name}.txt', 'w') as f:
+        f.write(prompt)
     response = call_llm(prompt, config, model=config.cluster_model)
+    with open(f'/Users/litvan/CodeWiki/temp/cluster_prompt_{current_module_name}_response.txt', 'w') as f:
+        f.write(response)
 
     #parse the response
     try:

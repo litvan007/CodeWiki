@@ -3,9 +3,9 @@
 Simple documentation server for hosting documentation folders.
 
 This server serves documentation folders with the following structure:
-- overview.md: The main overview document
+- index.md: The main overview document
 - module_tree.json: Hierarchical structure of modules
-- Various .md files for different modules
+- Module folders like `GET_message_info/` containing `{module}.md`, `request.md`, `response.md`
 
 Usage:
     python docs_server.py --docs-folder path/to/docs --port 8080
@@ -112,10 +112,10 @@ async def index():
     if DOCS_FOLDER is None:
         raise HTTPException(status_code=500, detail="Documentation folder not configured. Please set DOCS_FOLDER environment variable or run with --docs-folder argument.")
     
-    overview_file = Path(DOCS_FOLDER) / "overview.md"
+    overview_file = Path(DOCS_FOLDER) / "index.md"
     
     if not overview_file.exists():
-        raise HTTPException(status_code=404, detail="overview.md not found in the documentation folder")
+        raise HTTPException(status_code=404, detail="index.md not found in the documentation folder")
     
     try:
         content = file_manager.load_text(overview_file)
@@ -127,13 +127,13 @@ async def index():
             "title": title,
             "content": html_content,
             "navigation": MODULE_TREE,
-            "current_page": "overview.md"
+            "current_page": "index.md"
         }
         
         return HTMLResponse(content=render_template(DOCS_VIEW_TEMPLATE, context))
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error reading overview.md: {e}")
+        raise HTTPException(status_code=500, detail=f"Error reading index.md: {e}")
 
 
 @app.get("/{filename:path}", response_class=HTMLResponse)
@@ -226,10 +226,10 @@ def main():
         print(f"Error: '{docs_folder}' is not a directory")
         sys.exit(1)
     
-    # Check for overview.md
-    overview_file = docs_folder / "overview.md"
+    # Check for index.md
+    overview_file = docs_folder / "index.md"
     if not overview_file.exists():
-        print(f"Warning: overview.md not found in '{docs_folder}'")
+        print(f"Warning: index.md not found in '{docs_folder}'")
     
     # Set global variables and environment variable for uvicorn reload
     global DOCS_FOLDER, MODULE_TREE
@@ -243,7 +243,7 @@ def main():
     print(f"📚 Starting documentation server...")
     print(f"📁 Documentation folder: {DOCS_FOLDER}")
     print(f"🌐 Server running at: http://{args.host}:{args.port}")
-    print(f"📖 Main page: overview.md")
+    print(f"📖 Main page: index.md")
     
     if MODULE_TREE:
         modules_count = len(MODULE_TREE)

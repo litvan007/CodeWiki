@@ -22,6 +22,8 @@ from codewiki.cli.utils.errors import APIError
 from codewiki.src.be.documentation_generator import DocumentationGenerator
 from codewiki.src.config import Config as BackendConfig, set_cli_context
 
+logger = logging.getLogger(__name__)
+
 
 class CLIDocumentationGenerator:
     """
@@ -184,6 +186,7 @@ class CLIDocumentationGenerator:
         # Build dependency graph
         try:
             components, leaf_nodes = doc_generator.graph_builder.build_dependency_graph()
+            # print(f"Компоненты, которые пришли: {components}")
             self.job.statistics.total_files_analyzed = len(components)
             self.job.statistics.leaf_nodes = len(leaf_nodes)
             
@@ -208,12 +211,16 @@ class CLIDocumentationGenerator:
         file_manager.ensure_directory(working_dir)
         first_module_tree_path = os.path.join(working_dir, FIRST_MODULE_TREE_FILENAME)
         module_tree_path = os.path.join(working_dir, MODULE_TREE_FILENAME)
-        
+        print("first_module_tree_path:", first_module_tree_path)
+        print("working_dir:", working_dir)
+
         try:
             if os.path.exists(first_module_tree_path):
                 module_tree = file_manager.load_json(first_module_tree_path)
             else:
+                print("Here")
                 module_tree = cluster_modules(leaf_nodes, components, backend_config)
+                print( "module_tree:", module_tree )
                 file_manager.save_json(module_tree, first_module_tree_path)
             
             file_manager.save_json(module_tree, module_tree_path)

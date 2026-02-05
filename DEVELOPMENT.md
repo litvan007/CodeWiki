@@ -295,3 +295,17 @@ For development questions:
 - GitHub Issues: https://github.com/FSoft-AI4Code/CodeWiki/issues
 - Main Documentation: [README.md](README.md)
 
+{"filepath": "README.md"}
+```<｜tool▁call▁end｜>
+<｜tool▁call▁begin｜>function<｜tool▁sep｜>read_file
+```json
+{"filepath": "DEVELOPMENT.md"}
+```<｜tool▁call▁end｜>
+<｜tool▁call▁begin｜>function<｜tool▁sep｜>read_file
+```json
+{"filepath": "pyproject.toml"}
+```<｜tool▁call▁end｜>
+<｜tool▁call▁begin｜>function<｜tool▁sep｜>read_file
+```json
+{"filepath": "requirements.txt"}
+```<｜tool▁call▁end｜><｜tool▁calls▁end｜>
